@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import os
 from enum import Enum
+from embedding_util import add_rope_embeddings_to_df
 
 class DatasetType(Enum):
     TRAIN = 0
@@ -176,15 +177,18 @@ def preprocess_merged_data(file_path):
     # Drop rows with NaN (will be the first row for each ticker since it has no previous day)
     df = df.dropna()
     
-    print(f"Loaded {len(df)} rows after preprocessing")
-    print(f"Unique tickers: {df['unique_id'].nunique()}")
-    print(f"Features: {[col for col in df.columns if col not in ['Date', 'unique_id', 'y']]}")
-    print(f"Class distribution - 1: {df['y'].sum()}, 0: {len(df) - df['y'].sum()}")
     neg_pos_ratio = (len(df) - df['y'].sum())/(df['y'].sum() + 1e-5)
     
     return df, neg_pos_ratio
 
-def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, train_split=0.8, val_split=0.1, num_workers=4):
+def print_df_info(df):
+    print(f"Loaded {len(df)} rows after preprocessing")
+    print(f"Unique tickers: {df['unique_id'].nunique()}")
+    print(f"Features: {[col for col in df.columns if col not in ['Date', 'unique_id', 'y']]}")
+    print(f"Class distribution - 1: {df['y'].sum()}, 0: {len(df) - df['y'].sum()}")
+
+
+def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, train_split=0.8, val_split=0.1, num_workers=4, rope=False):
     """
     Create train, validation, and test DataLoaders from a merged stock data file
     
@@ -199,8 +203,11 @@ def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, tr
     Returns:
         tuple: (train_loader, val_loader, test_loader)
     """
+   
     # Preprocess the data
     df, neg_pos_ratio = preprocess_merged_data(file_path)
+
+    print_df_info(df)
     
     # Create datasets
     train_dataset = StockDataset(
