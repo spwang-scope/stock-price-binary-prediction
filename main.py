@@ -82,6 +82,12 @@ def main(args):
             'dim_feedforward': args.hidden_size * 4,
             'dropout': args.dropout
         }
+    elif args.model_type == 'mlp':
+        model_kwargs = {
+            'hidden_size': args.hidden_size,
+            'num_layers': args.num_layers,
+            'dropout': args.dropout
+        }
     
     model = create_model(args.model_type, input_size, **model_kwargs)
     print(f"Created {args.model_type.upper()} model with {sum(p.numel() for p in model.parameters())} parameters")
