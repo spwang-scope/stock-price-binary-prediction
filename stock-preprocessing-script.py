@@ -91,15 +91,15 @@ def process_csv_file(file_path, output_dir=None):
         df = calculate_moving_averages(df)
         
         # 4. Create 'y' column based on Close price increase rate
-        df['y'] = 0  # Set default value to zero
+        df['y'] = pd.NA
         
         # Check if 'Close' column exists
         if 'Close' in df.columns:
             # Calculate percentage increase from previous row
             df['increase_rate'] = df['Close'].pct_change() * 100
             
-            # Set 'y' to 1 where increase_rate > 0.55%
             df.loc[df['increase_rate'] > 0.55, 'y'] = 1
+            df.loc[df['increase_rate'] < -0.5, 'y'] = 0
             
             # Drop the temporary increase_rate column
             df = df.drop(columns=['increase_rate'])
@@ -204,7 +204,7 @@ def main(datapath):
 
 if __name__ == "__main__":
     # Replace this with your actual datapath
-    datapath = r"C:\Users\mira\time_experiment\data\stocknet-dataset\price\raw"
+    datapath = r"C:\Users\mira\time_experiment\data\kdd17\price_long_50"
     
     # Or use the datapath from variable if running in a context where it's defined
     # datapath variable is assumed to be defined elsewhere in the code

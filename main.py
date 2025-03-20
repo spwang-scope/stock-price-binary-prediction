@@ -49,7 +49,8 @@ def main(args):
         file_path=args.file,
         batch_size=args.batch_size,
         context_window=args.context_window,
-        num_workers=args.num_workers
+        num_workers=args.num_workers,
+        rope=args.rope
     )
     
     # Determine input size from the first batch
@@ -161,6 +162,8 @@ if __name__ == "__main__":
     # Other arguments
     parser.add_argument('--save_model', action='store_true', help='Save model after training')
     parser.add_argument('--plot', action='store_true', help='Plot training history')
+
+    parser.add_argument('--rope', action='store_true', help='Apply rope embedding')
     
     args = parser.parse_args()
     

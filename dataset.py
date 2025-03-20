@@ -5,6 +5,7 @@ import numpy as np
 import os
 from enum import Enum
 from embedding_util import add_rope_embeddings_to_df
+import random
 
 class DatasetType(Enum):
     TRAIN = 0
@@ -12,7 +13,7 @@ class DatasetType(Enum):
     TEST = 2
 
 class StockDataset(Dataset):
-    def __init__(self, df, dataset_type=DatasetType.TRAIN, context_window=10, train_split=0.8, val_split=0.1):
+    def __init__(self, df, dataset_type=DatasetType.TRAIN, context_window=10, train_split=0.8, val_split=0.1, rope=False):
         """
         Custom dataset for stock price data with context window
         
@@ -113,11 +114,23 @@ class StockDataset(Dataset):
           This includes the current row and context_window preceding rows of SAME ticker
         - Label for the current row
         """
+
         # Get the actual index in the dataset
         original_idx = self.valid_indices[idx]
         
         # Get the row from the original dataset
         current_row = self.data.loc[self.data['original_idx'] == original_idx].iloc[0]
+
+        # If the label is NaN, try with other random number
+        while True:
+            if not pd.isna(current_row['y']):
+                break
+            else:
+                idx = random.randint(0, len(self) - 1)
+                original_idx = self.valid_indices[idx]
+                current_row = self.data.loc[self.data['original_idx'] == original_idx].iloc[0]
+
+        # Get the ticker name
         ticker = current_row['unique_id']
         
         # Get the ticker-specific dataframe
@@ -145,13 +158,13 @@ class StockDataset(Dataset):
         else:
             # Get the appropriate context window
             feature_window = ticker_df.iloc[ticker_pos-self.context_window:ticker_pos+1][self.feature_cols].values.astype(np.float32)
-        
-        # Get the label
-        label = current_row['y']
-        
-        # Convert to tensors
-        feature_tensor = torch.tensor(feature_window, dtype=torch.float32)
-        label_tensor = torch.tensor(label, dtype=torch.float32)
+            
+            # Get the label
+            label = current_row['y']
+            
+            # Convert to tensors
+            feature_tensor = torch.tensor(feature_window, dtype=torch.float32)
+            label_tensor = torch.tensor(label, dtype=torch.float32)
         
         return feature_tensor, label_tensor
 
@@ -206,6 +219,8 @@ def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, tr
    
     # Preprocess the data
     df, neg_pos_ratio = preprocess_merged_data(file_path)
+
+    df = add_rope_embeddings_to_df(df)
 
     print_df_info(df)
     
