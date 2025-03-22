@@ -221,7 +221,7 @@ def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, tr
     df, neg_pos_ratio = preprocess_merged_data(file_path)
 
     if rope:
-        df = add_rope_embeddings_to_df(df)
+        df = add_rope_embeddings_to_df(df, emb_size = 8)
 
     print_df_info(df)
     

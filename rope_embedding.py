@@ -13,7 +13,7 @@ class ScalarRoPEEmbedding(nn.Module):
         embedding_dim (int): Size of the embedding vector. Must be even.
         base (float, optional): Base value for frequency calculation. Default: 10000.0
     """
-    def __init__(self, embedding_dim=8, base=10000.0):
+    def __init__(self, embedding_dim=4, base=10000.0):
         super(ScalarRoPEEmbedding, self).__init__()
         
         if embedding_dim % 2 != 0:
