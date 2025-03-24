@@ -201,7 +201,7 @@ def print_df_info(df):
     print(f"Class distribution - 1: {df['y'].sum()}, 0: {len(df) - df['y'].sum()}")
 
 
-def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, train_split=0.8, val_split=0.1, num_workers=4, rope=False):
+def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, train_split=0.8, val_split=0.1, num_workers=4, rope_embedding_dim=4):
     """
     Create train, validation, and test DataLoaders from a merged stock data file
     
@@ -220,8 +220,8 @@ def create_dataloaders_from_file(file_path, batch_size=32, context_window=10, tr
     # Preprocess the data
     df, neg_pos_ratio = preprocess_merged_data(file_path)
 
-    if rope:
-        df = add_rope_embeddings_to_df(df, emb_size = 8)
+    if rope_embedding_dim != 0:
+        df = add_rope_embeddings_to_df(df, emb_size=rope_embedding_dim)
 
     print_df_info(df)
     

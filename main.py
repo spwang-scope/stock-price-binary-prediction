@@ -50,7 +50,7 @@ def main(args):
         batch_size=args.batch_size,
         context_window=args.context_window,
         num_workers=args.num_workers,
-        rope=args.rope
+        rope_embedding_dim=args.rope_embedding_dim
     )
     
     # Determine input size from the first batch
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument('--save_model', action='store_true', help='Save model after training')
     parser.add_argument('--plot', action='store_true', help='Plot training history')
 
-    parser.add_argument('--rope', action='store_true', help='Apply rope embedding')
+    parser.add_argument('--rope_embedding_dim', type=int, default=0, help='Apply feature dimension of rope embedding (Must be even number)')
     
     args = parser.parse_args()
     
