@@ -28,7 +28,7 @@ class LSTMModel(BaseTimeSeriesModel):
         
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_size, 1)
-        self.sigmoid = nn.Sigmoid()
+        self.tanh = nn.Tanh()
         
     def forward(self, x):
         """
@@ -47,7 +47,7 @@ class LSTMModel(BaseTimeSeriesModel):
         last_time_step = lstm_out[:, -1, :]  # shape: [batch_size, hidden_size]
         
         # Apply dropout and feed into fully connected layer
-        out = self.dropout(last_time_step)
+        out = self.tanh(last_time_step)
         out = self.fc(out)  # shape: [batch_size, 1]
         
         return out.squeeze()  # shape: [batch_size]
