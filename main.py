@@ -9,6 +9,7 @@ from models.lstm_model import LSTMModel
 from models.tcn_model import TCNModel
 from models.transformer_model import TransformerModel
 from models.mlp_model import MLPModel
+from models.film_mlp_model import FiLMMLPModel
 from dataset import create_dataloaders_from_file
 from trainer import Trainer
 
@@ -34,6 +35,8 @@ def create_model(model_type, input_size, **kwargs):
         return TransformerModel(input_size, **kwargs)
     elif model_type == 'mlp':
         return MLPModel(input_size, **kwargs)
+    elif model_type == 'film_mlp':
+        return FiLMMLPModel(input_size, **kwargs)
     else:
         raise ValueError(f"Unknown model type: {model_type}")
 
@@ -88,6 +91,13 @@ def main(args):
             'num_layers': args.num_layers,
             'dropout': args.dropout
         }
+    elif args.model_type == 'film_mlp':
+        model_kwargs = {
+            'hidden_size': args.hidden_size,
+            'num_layers': args.num_layers,
+            'dropout': args.dropout,
+            'rope_embedding_dim': args.rope_embedding_dim
+    }
     
     model = create_model(args.model_type, input_size, **model_kwargs)
     print(f"Created {args.model_type.upper()} model with {sum(p.numel() for p in model.parameters())} parameters")
@@ -149,7 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_workers', type=int, default=4, help='Number of data loader workers')
     
     # Model arguments
-    parser.add_argument('--model_type', type=str, default='lstm', choices=['lstm', 'tcn', 'transformer', 'mlp'], 
+    parser.add_argument('--model_type', type=str, default='lstm', choices=['lstm', 'tcn', 'transformer', 'mlp', 'film_mlp'], 
                         help='Type of model to use')
     parser.add_argument('--hidden_size', type=int, default=64, help='Hidden size')
     parser.add_argument('--num_layers', type=int, default=2, help='Number of layers')
